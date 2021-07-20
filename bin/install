@@ -44,11 +44,14 @@ install_erlang() {
 link_app_executables() {
     local install_path=$1
 
-    # Link other executables to the bin directory so that asdf shims are created for them
+    # Link lib/**/bin/* files to bin/ so that shims are created for them
     cd "$install_path/bin"
-    
-    # ln call may fail if multiple executables are found with the same name
-    ln -s ../lib/*/bin/* ../lib/*/priv/bin/* . || true
+    for f in $(find ../lib -path '*/bin/*' -type f -path '*/bin/*'); do
+      # only link files that do not already exist in $install_path/bin
+      if [ ! -f $(basename "$f") ]; then
+        ln -s "$f" .
+      fi
+    done
 }
 
 install_erlang
